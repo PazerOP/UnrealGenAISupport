@@ -367,6 +367,7 @@ class TestSyntax(unittest.TestCase):
 class TestPackaging(unittest.TestCase):
     """Verify the pyproject.toml is well-formed."""
 
+    @unittest.skipIf(sys.version_info < (3, 11), "tomllib requires Python 3.11+")
     def test_pyproject_toml_valid(self):
         import tomllib
 
