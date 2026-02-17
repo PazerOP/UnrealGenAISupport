@@ -18,6 +18,7 @@
 
 # Fortran module files
 *.mod
+!go.mod
 
 # Compiled Static libraries
 *.lai
@@ -72,3 +73,6 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Go MCP Server build output (built binaries - build from source or download releases)
+McpServer/bin/

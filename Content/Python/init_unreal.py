@@ -23,10 +23,10 @@ def shutdown_mcp_server():
             log.log_error(f"Error terminating MCP server: {e}")
 
 def start_mcp_server():
-    """Start the external MCP server process"""
+    """Start the external MCP server process (Go binary)"""
     global mcp_server_process
     try:
-        # Find our plugin's Python directory
+        # Find our plugin's Python directory to locate the plugin root
         plugin_python_path = None
         for path in sys.path:
             if "GenerativeAISupport/Content/Python" in path:
@@ -37,17 +37,29 @@ def start_mcp_server():
             log.log_error("Could not find plugin Python path")
             return False
 
-        # Get the mcp_server.py path
-        mcp_server_path = os.path.join(plugin_python_path, "mcp_server.py")
+        # Navigate up to the plugin root: Content/Python -> Content -> PluginRoot
+        plugin_root = os.path.dirname(os.path.dirname(plugin_python_path))
 
-        if not os.path.exists(mcp_server_path):
-            log.log_error(f"MCP server script not found at: {mcp_server_path}")
+        # Determine platform-specific binary name
+        if sys.platform == 'win32':
+            binary_name = "unreal-mcp-server.exe"
+        elif sys.platform == 'darwin':
+            binary_name = "unreal-mcp-server"
+        else:
+            binary_name = "unreal-mcp-server"
+
+        mcp_binary_path = os.path.join(plugin_root, "McpServer", "bin", binary_name)
+
+        if not os.path.exists(mcp_binary_path):
+            log.log_error(f"MCP server binary not found at: {mcp_binary_path}")
             return False
 
-        # Start the MCP server as a separate process
-        python_exe = sys.executable
-        log.log_info(f"Starting MCP server using Python: {python_exe}")
-        log.log_info(f"MCP server script path: {mcp_server_path}")
+        log.log_info(f"Starting MCP server binary: {mcp_binary_path}")
+
+        # Pass the plugin root path as an environment variable so the Go binary
+        # can locate knowledge_base/how_to_use.md
+        env = os.environ.copy()
+        env["UNREAL_PLUGIN_PATH"] = plugin_root
 
         # Create a detached process that will continue running
         # even if Unreal crashes (we'll handle proper shutdown with atexit)
@@ -56,7 +68,8 @@ def start_mcp_server():
             creationflags = subprocess.CREATE_NEW_PROCESS_GROUP
 
         mcp_server_process = subprocess.Popen(
-            [python_exe, mcp_server_path],
+            [mcp_binary_path],
+            env=env,
             creationflags=creationflags,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
