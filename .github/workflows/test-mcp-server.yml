@@ -2,6 +2,7 @@ name: Test MCP Server
 
 on:
   push:
+    branches: [main]
     paths:
       - "Content/Python/**"
       - "tests/**"
