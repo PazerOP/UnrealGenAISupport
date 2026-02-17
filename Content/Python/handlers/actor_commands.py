@@ -181,7 +181,6 @@ def handle_add_component_with_events(command: Dict[str, Any]) -> Dict[str, Any]:
         node_creator = unreal.GenBlueprintUtils
         result = node_creator.add_component_with_events(blueprint_path, component_name, component_class)
 
-        import json
         parsed_result = json.loads(result)
         log.log_result("add_component_with_events", parsed_result["success"], parsed_result.get("message", parsed_result.get("error", "No message")))
         return parsed_result

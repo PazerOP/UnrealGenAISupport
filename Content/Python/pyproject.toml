@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "unreal-mcp-server"
+version = "0.1.0"
+description = "MCP server for Unreal Engine Generative AI Support plugin"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = ["mcp[cli]>=1.0.0,<2.0.0"]
+
+[project.scripts]
+unreal-mcp-server = "mcp_server:main"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["mcp_server.py", "socket_protocol.py", "mss", "knowledge_base"]
