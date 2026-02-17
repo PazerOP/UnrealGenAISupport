@@ -108,13 +108,15 @@ def handle_execute_python(command: Dict[str, Any]) -> Dict[str, Any]:
         # Get log line count before execution
         log_start_line = get_log_line_count()
 
+        # Advisory safety check: block potentially destructive operations unless forced.
+        # NOTE: execute_python is inherently an arbitrary code execution tool. This check
+        # catches accidental deletions, not determined misuse.
         destructive_keywords = [
             "unreal.EditorAssetLibrary.delete_asset",
             "unreal.EditorLevelLibrary.destroy_actor",
             "unreal.save_package",
             "os.remove",
             "shutil.rmtree",
-            "file.write",
             "unreal.EditorAssetLibrary.save_asset"
         ]
         is_destructive = any(keyword in script for keyword in destructive_keywords)
@@ -141,9 +143,8 @@ def handle_execute_python(command: Dict[str, Any]) -> Dict[str, Any]:
         with open(script_file, 'w') as f:
             f.write(dedented_script)
 
-        # Execute using the wrapper
+        # Execute using the wrapper (synchronous — exec() blocks until done)
         execute_script(script_file, output_file, error_file, status_file)
-        time.sleep(0.5)  # Allow execution to complete
 
         output = ""
         error = ""
@@ -254,7 +255,7 @@ def handle_execute_unreal_command(command: Dict[str, Any]) -> Dict[str, Any]:
         unreal.SystemLibrary.execute_console_command(world, cmd)
         
         # Add a short delay to allow logs to be captured
-        time.sleep(1.0)  # Slightly longer delay to ensure logs are written
+        time.sleep(0.1)  # Brief delay for log file flush
         
         # Get new log entries generated during command execution
         recent_logs = get_recent_unreal_logs(log_start_line)

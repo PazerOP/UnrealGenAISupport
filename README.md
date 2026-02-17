@@ -237,18 +237,23 @@ For test builds you can call the `GenSecureKey::SetGenAIApiKeyRuntime` either in
 * Cursor IDE from [here](https://www.cursor.com/).
 
 ##### 2. Setup the mcp config json:
+
+###### Using uv (recommended — handles dependencies automatically):
+
+`uv` reads the inline dependency metadata in `mcp_server.py` and auto-installs `mcp[cli]` into a cached virtual environment. No manual `pip install` needed.
+
 ###### For Claude Desktop App:
 `claude_desktop_config.json` file in Claude Desktop App's installation directory. (might ask claude where its located for your platform!)
 The file will look something like this:
 ```json
 {
     "mcpServers": {
-      "unreal-handshake": {
-        "command": "python",
-        "args": ["<your_project_directoy_path>/Plugins/GenerativeAISupport/Content/Python/mcp_server.py"],
+      "unreal-engine": {
+        "command": "uv",
+        "args": ["run", "<your_project_directory>/Plugins/GenerativeAISupport/Content/Python/mcp_server.py"],
         "env": {
           "UNREAL_HOST": "localhost",
-          "UNREAL_PORT": "9877" 
+          "UNREAL_PORT": "9877"
         }
       }
     }
@@ -259,21 +264,36 @@ The file will look something like this:
 ```json
 {
     "mcpServers": {
-      "unreal-handshake": {
-        "command": "python",
-        "args": ["<your_project_directoy_path>/Plugins/GenerativeAISupport/Content/Python/mcp_server.py"],
+      "unreal-engine": {
+        "command": "uv",
+        "args": ["run", "<your_project_directory>/Plugins/GenerativeAISupport/Content/Python/mcp_server.py"],
         "env": {
           "UNREAL_HOST": "localhost",
-          "UNREAL_PORT": "9877" 
+          "UNREAL_PORT": "9877"
         }
       }
     }
 }
 ```
-##### 3. Install MCP[CLI] from with either pip or cv.
+
+###### Alternative (without uv):
+
+If you prefer not to use `uv`, install the MCP server package manually:
 ```bash
-pip install mcp[cli]
+cd <your_project_directory>/Plugins/GenerativeAISupport/Content/Python
+pip install .
 ```
+Then use `"command": "unreal-mcp-server"` instead of the `uv` command above, or use `"command": "python"` with `"args": ["<path>/mcp_server.py"]`.
+
+##### 3. Install uv (if you don't have it):
+```bash
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+If you used the alternative `pip install .` method above, you can skip this step.
 ##### 4. Enable python plugin in Unreal Engine. (Edit -> Plugins -> Python Editor Script Plugin)
 
 ##### 5. [OPTIONAL] Enable AutoStart MCP server on editor open
