@@ -2,12 +2,6 @@ name: Test MCP Server
 
 on:
   push:
-    branches: [main]
-    paths:
-      - "Content/Python/**"
-      - "tests/**"
-      - ".github/workflows/test-mcp-server.yml"
-  pull_request:
     paths:
       - "Content/Python/**"
       - "tests/**"
